@@ -1,9 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { CONFIG_NAME_METADATA_KEY } from '~/constants.js'
+
+import { ConfigurationRegistry } from '~/configuration-registry'
 
 
+/**
+ * @deprecated Use `@ConfigKey` instead
+ */
 export function ConfigName(name: string): PropertyDecorator {
-  return (target: any, propertyKey: string | symbol) => {
-    Reflect.defineMetadata(CONFIG_NAME_METADATA_KEY, name, target, propertyKey)
+  return (target, propertyKey) => {
+    ConfigurationRegistry.registerProperty(target, { ignore: false, propertyKey, configKey: name })
   }
 }

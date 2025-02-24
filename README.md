@@ -43,7 +43,7 @@ of `class-validator` to properties:
 ```typescript
 // app.config.ts
 import { Configuration } from "@buka/nestjs-config";
-import { IsString, IsOptional, IsIn, isIp } from "class-validator";
+import { IsString, IsOptional, IsIn, IsIp } from "class-validator";
 import { Split } from "@miaooo/class-transformer-split";
 
 @Configuration()
@@ -223,7 +223,7 @@ export class MysqlConfig {
 
 ```typescript
 // app.config.ts
-import { Configuration, ConfigName } from "@buka/nestjs-config";
+import { Configuration, ConfigKey } from "@buka/nestjs-config";
 import { IsString } from "class-validator";
 
 @Configuration("mysql.master")
@@ -231,13 +231,13 @@ export class MysqlConfig {
   // process : process.env.DATABASE_HOST
   // .env    : DATABASE_HOST
   // .json   : { databaseHost: "" }
-  @ConfigName("DATABASE_HOST")
+  @ConfigKey("DATABASE_HOST")
   @IsString()
   host: string;
 }
 ```
 
-> `@ConfigName(name)` will overwrite the prefix of `@Configuration([prefix])`
+> `@ConfigKey(name)` will overwrite the prefix of `@Configuration([prefix])`
 
 ### Remove warning logs
 
@@ -341,3 +341,27 @@ export default (async function loadConfig() {
 > [!TIP]
 >
 > The `options` of `ConfigModule.preload(options)` is the `options` of `ConfigModule.register(options)`
+
+## Q&A
+
+### Reported every field in my Config class was missing, even though they weren't.
+
+**This may be due to `target` in tsconfig.json is `ES2021` or lower.** We recommend using `ES2022` and above.
+But, if you must use `ES2021`, every property key should add `@ConfigKey()` decorator ([See More](https://github.com/buka-inc/npm.nestjs-config/issues/26)):
+
+```typescript
+// app.config.ts
+import { Configuration, ConfigKey } from "@buka/nestjs-config";
+import { IsIp, IsIn } from "class-validator";
+
+@Configuration()
+export class AppConfig {
+  @ConfigKey()
+  @IsIp()
+  host = "0.0.0.0";
+
+  @ConfigKey()
+  @IsIn(["dev", "test", "prod"])
+  nodeEnv: string;
+}
+```

@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { readFile } from 'fs/promises'
-import { ConfigLoader } from '~/interfaces/config-loader.interface.js'
-import { ConfigModuleOptions } from '~/interfaces/config-module-options.interface.js'
+import { ConfigLoader } from '~/types/config-loader.interface.js'
+import { ConfigModuleOptions } from '~/types/config-module-options.interface.js'
 import { fsExist } from '../utils/fs-exists.js'
 
 

@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { DynamicModule, FactoryProvider, Logger, Module, Type } from '@nestjs/common'
+import * as R from 'ramda'
+import { DynamicModule, FactoryProvider, Logger, Module } from '@nestjs/common'
 import { instanceToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import objectPath from 'object-path'
@@ -7,15 +7,17 @@ import { Class } from 'type-fest'
 import { dotenvLoader } from './config-loader/dotenv-loader.js'
 import { processEnvLoader } from './config-loader/process-env-loader.js'
 import { ASYNC_OPTIONS_TYPE, ConfigurableModuleClass, MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } from './config.module-definition.js'
-import { CONFIGURATION_OBJECTS_METADATA_KEY, CONFIGURATION_OBJECT_PATH_METADATA_KEY, CONFIG_NAME_METADATA_KEY, MODULE_LOADED_CONFIG_TOKEN, RESET_COLOR } from './constants.js'
-import { AsyncOptions } from './interfaces/async-options.js'
-import { ConfigProvider } from './interfaces/config-provider.interface.js'
-import { AsyncOptionsOfModule, InjectedModule } from './interfaces/injected-module.interface.js'
+import { MODULE_LOADED_CONFIG_TOKEN, RESET_COLOR } from './constants.js'
+import { AsyncOptions } from './types/async-options.js'
+import { ConfigProvider } from './types/config-provider.interface.js'
+import { AsyncOptionsOfModule, InjectedModule } from './types/injected-module.interface.js'
 import { objectKeysToCamelCase } from './utils/object-keys-to-camel-case.js'
 import { toCamelCase } from './utils/to-camel-case.js'
-import { ConfigModuleOptions } from './interfaces/config-module-options.interface.js'
+import { ConfigModuleOptions } from './types/config-module-options.interface.js'
 import { deepMergeAll } from './utils/deep-merge-all.js'
 import { inspect } from 'util'
+import { ConfigurationRegistry } from './configuration-registry.js'
+import { IConfigProvider } from './types/config-provider.js'
 
 
 @Module({})
@@ -23,25 +25,36 @@ export class ConfigModule extends ConfigurableModuleClass {
   private static config: object | null = null
   private static providers = new Map()
 
-  private static async createConfigProvider(options: typeof OPTIONS_TYPE, config: Record<string, any>, ConfigProviderClass: ConfigProvider): Promise<ConfigProvider> {
-    if (this.providers.has(ConfigProviderClass)) {
-      return this.providers.get(ConfigProviderClass)
+  private static async createConfigProvider(options: typeof OPTIONS_TYPE, config: Record<string, any>, configProvider: IConfigProvider): Promise<ConfigProvider> {
+    const ConfigProviderClass = configProvider.target
+    if (this.providers.has(ConfigProviderClass)) return this.providers.get(ConfigProviderClass)
+
+
+    const path: string = toCamelCase(configProvider.path)
+    const subConfig = objectPath.get(config, path)
+
+    const instance: typeof ConfigProviderClass = new ConfigProviderClass()
+    function set(property: string | symbol, value: any): void {
+      if (value !== undefined) instance[property] = value
     }
 
-    const path: string = toCamelCase(Reflect.getMetadata(CONFIGURATION_OBJECT_PATH_METADATA_KEY, ConfigProviderClass) || '')
+    const properties = R.uniq([
+      ...Object.getOwnPropertyNames(instance),
+      ...ConfigurationRegistry.getProperties(instance),
+    ])
 
-    const subConfig = objectPath.get(config, path)
-    const instance: typeof ConfigProviderClass = new ConfigProviderClass()
+    for (const property of properties) {
+      const ck = ConfigurationRegistry.getConfigKey(ConfigProviderClass, property)
+      if (ck.ignore) continue
 
-    for (const key of Object.getOwnPropertyNames(instance)) {
-      const configName = Reflect.getMetadata(CONFIG_NAME_METADATA_KEY, ConfigProviderClass, key)
-      if (configName) {
-        const value = objectPath.get(config, configName)
-        if (value !== undefined) instance[key] = value
+      if (ck.configKey) {
+        const value = objectPath.get(config, ck.configKey)
+        set(property, value)
       }
 
-      const value = subConfig && subConfig[toCamelCase(key)]
-      if (value !== undefined) instance[key] = value
+      if (typeof ck.propertyKey === 'symbol') continue
+
+      set(property, subConfig && subConfig[toCamelCase(ck.propertyKey)])
     }
 
     const result = instanceToInstance(instance)
@@ -87,15 +100,15 @@ export class ConfigModule extends ConfigurableModuleClass {
     return config
   }
 
-  private static createConfigProviderFactory(ConfigProviderClass: ConfigProvider): FactoryProvider {
+  private static createConfigProviderFactory(configProvider: IConfigProvider): FactoryProvider {
     return {
-      provide: ConfigProviderClass,
+      provide: configProvider.target,
       inject: [MODULE_OPTIONS_TOKEN, MODULE_LOADED_CONFIG_TOKEN],
       useFactory: (options: typeof OPTIONS_TYPE, config: Record<string, any>) => {
-        const provider = this.providers.get(ConfigProviderClass)
+        const provider = this.providers.get(configProvider.target)
         if (provider) return provider
 
-        return this.createConfigProvider(options, config, ConfigProviderClass)
+        return this.createConfigProvider(options, config, configProvider)
       },
     }
   }
@@ -113,7 +126,8 @@ export class ConfigModule extends ConfigurableModuleClass {
    */
   static async preload(options: ConfigModuleOptions): Promise<void> {
     const config = await this.loadConfig(options)
-    const configProviders: Type<any>[] = Reflect.getMetadata(CONFIGURATION_OBJECTS_METADATA_KEY, ConfigModule) || []
+
+    const configProviders: IConfigProvider[] = ConfigurationRegistry.getProviders()
     await Promise.all(configProviders.map((provider) => this.createConfigProvider(options, config, provider)))
   }
 
@@ -125,7 +139,7 @@ export class ConfigModule extends ConfigurableModuleClass {
   }
 
   static register(options: typeof OPTIONS_TYPE): DynamicModule {
-    const configProviders = Reflect.getMetadata(CONFIGURATION_OBJECTS_METADATA_KEY, ConfigModule) || []
+    const configProviders = ConfigurationRegistry.getProviders()
     const dynamicModule = super.register(options)
 
     dynamicModule.providers = [
@@ -136,14 +150,14 @@ export class ConfigModule extends ConfigurableModuleClass {
 
     dynamicModule.exports = [
       ...(dynamicModule.exports || []),
-      ...configProviders,
+      ...configProviders.map((provider) => provider.target),
     ]
 
     return dynamicModule
   }
 
   static registerAsync(options: typeof ASYNC_OPTIONS_TYPE): DynamicModule {
-    const configProviders = Reflect.getMetadata(CONFIGURATION_OBJECTS_METADATA_KEY, ConfigModule) || []
+    const configProviders = ConfigurationRegistry.getProviders()
     const dynamicModule = super.registerAsync(options)
 
     dynamicModule.providers = [
@@ -154,7 +168,7 @@ export class ConfigModule extends ConfigurableModuleClass {
 
     dynamicModule.exports = [
       ...(dynamicModule.exports || []),
-      ...configProviders,
+      ...configProviders.map((provider) => provider.target),
     ]
 
     return dynamicModule

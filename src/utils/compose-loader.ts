@@ -1,4 +1,4 @@
-import { ConfigLoader } from '~/interfaces/config-loader.interface.js'
+import { ConfigLoader } from '~/types/config-loader.interface.js'
 import { deepMergeAll } from './deep-merge-all.js'
 
 export function composeLoader(loaders: ConfigLoader[]): ConfigLoader {

@@ -1,12 +1,9 @@
-import { ConfigModule } from '~/config.module.js'
-import { CONFIGURATION_OBJECTS_METADATA_KEY, CONFIGURATION_OBJECT_PATH_METADATA_KEY } from '../constants.js'
+import { Type } from '@nestjs/common'
+import { ConfigurationRegistry } from '~/configuration-registry.js'
 
 
 export function Configuration(path?: string): ClassDecorator {
   return (target) => {
-    Reflect.defineMetadata(CONFIGURATION_OBJECT_PATH_METADATA_KEY, path, target)
-
-    const configurations = Reflect.getMetadata(CONFIGURATION_OBJECTS_METADATA_KEY, ConfigModule) || []
-    Reflect.defineMetadata(CONFIGURATION_OBJECTS_METADATA_KEY, [...configurations, target], ConfigModule)
+    ConfigurationRegistry.registerProvider({ target: target as unknown as Type<any>, path: path || '' })
   }
 }

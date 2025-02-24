@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { ConfigLoader } from '../interfaces/config-loader.interface.js'
+import { ConfigLoader } from '../types/config-loader.interface.js'
 
 
 interface ProcessEnvLoaderOptions {
