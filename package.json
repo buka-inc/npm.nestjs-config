@@ -1,6 +1,6 @@
 {
   "name": "@buka/nestjs-config",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "An easy to use nestjs config module",
   "packageManager": "pnpm@9.10.0",
   "main": "dist/umd/src/index.js",

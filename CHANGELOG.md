@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.8](https://github.com/buka-inc/npm.nestjs-config/compare/v2.1.7...v2.1.8) (2025-02-24)
+
+
+### Bug Fixes
+
+* cannot work in es2021 ([bae234b](https://github.com/buka-inc/npm.nestjs-config/commit/bae234b33ca97d4f9666a2c874418147745e7006)), closes [#26](https://github.com/buka-inc/npm.nestjs-config/issues/26)
+
 ## [2.1.7](https://github.com/buka-inc/npm.nestjs-config/compare/v2.1.6...v2.1.7) (2025-02-01)
 
 
