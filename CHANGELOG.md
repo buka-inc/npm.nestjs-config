@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.9](https://github.com/buka-inc/npm.nestjs-config/compare/v2.1.8...v2.1.9) (2025-02-25)
+
+
+### Performance Improvements
+
+* providers is no longer a required parameter ([a17be2f](https://github.com/buka-inc/npm.nestjs-config/commit/a17be2f0096b05f0d0d10fce420cc63f1cf48fdf))
+
 ## [2.1.8](https://github.com/buka-inc/npm.nestjs-config/compare/v2.1.7...v2.1.8) (2025-02-24)
 
 
