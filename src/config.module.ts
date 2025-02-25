@@ -126,7 +126,6 @@ export class ConfigModule extends ConfigurableModuleClass {
    */
   static async preload(options: ConfigModuleOptions = {}): Promise<void> {
     const config = await this.loadConfig(options)
-
     const configProviders: IConfigProvider[] = ConfigurationRegistry.getProviders()
     await Promise.all(configProviders.map((provider) => this.createConfigProvider(options, config, provider)))
   }

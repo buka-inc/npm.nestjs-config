@@ -309,6 +309,8 @@ like [add multiple database in `@nestjs/typeorm`](https://docs.nestjs.com/techni
 ```typescript
 @Module({
   imports: [
+    ConfigModule.register({ isGlobal: true }),
+
     ConfigModule.inject(
       TypeOrmConfig,
       TypeOrmModule,
@@ -382,4 +384,32 @@ export class AppConfig {
   @IsIn(["dev", "test", "prod"])
   nodeEnv: string;
 }
+```
+
+### Nest could not find `YourConfig` element.
+
+**`@buka/nestjs-config` will autoload all the config classes injected by service.**
+However, a config that is not used by any service may not be injected into the nestjs app.
+And this will causes you to get this error when attempt to `app.get(YourConfig)`.
+
+One solution is use `ConfigModule.get(YourConfig)` replace `app.get(YourConfig)`:
+
+```typescript
+await ConfigModule.preload();
+const yourConfig = await ConfigModule.get(YourConfig);
+
+// If you do this, you probably want to do something outside of the nestjs runtime.
+// do...
+```
+
+If you have to inject config class which is not used by any service, you can do it like this:
+
+```typescript
+@Module({
+  ConfigModule.register({
+    isGlobal: true,
+    providers: [YourConfig]
+  }),
+})
+class AppModule {}
 ```
