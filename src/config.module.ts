@@ -88,7 +88,7 @@ export class ConfigModule extends ConfigurableModuleClass {
     return result
   }
 
-  private static async loadConfig(options: typeof OPTIONS_TYPE): Promise<object> {
+  private static async loadConfig(options: typeof OPTIONS_TYPE = {}): Promise<object> {
     if (this.config !== null) return this.config
 
     const configLoaders = (options.loaders || [processEnvLoader(), '.env'])
@@ -124,7 +124,7 @@ export class ConfigModule extends ConfigurableModuleClass {
   /**
    * Load config and provider before registering the module
    */
-  static async preload(options: ConfigModuleOptions): Promise<void> {
+  static async preload(options: ConfigModuleOptions = {}): Promise<void> {
     const config = await this.loadConfig(options)
 
     const configProviders: IConfigProvider[] = ConfigurationRegistry.getProviders()

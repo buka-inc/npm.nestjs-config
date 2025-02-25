@@ -12,7 +12,10 @@ export interface ConfigModuleOptions {
    */
   loaders?: (string | ConfigLoader)[]
 
-  providers: Type[]
+  /**
+   * Provider can be automatically loaded, in most cases.
+   */
+  providers?: Type[]
 
   suppressWarnings?: true
 

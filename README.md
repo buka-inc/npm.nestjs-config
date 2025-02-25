@@ -79,12 +79,7 @@ import { AppConfig } from "./app.config";
 
 @Module({
   // use process.env and read .env by defaulted
-  imports: [
-    ConfigModule.register({
-      isGlobal: true,
-      providers: [AppConfig],
-    }),
-  ],
+  imports: [ConfigModule.register({ isGlobal: true })],
 })
 export class AppModule {}
 ```
@@ -144,7 +139,6 @@ import { AppConfig } from "./app.config";
   imports: [
     ConfigModule.register({
       isGlobal: true,
-      providers: [AppConfig],
       loaders: [
         processEnvLoader,
         // transform DATABASE__HOST="0.0.0.0"
@@ -195,7 +189,6 @@ import { yamlConfigLoader } from "./yamlConfigLoader";
   imports: [
     ConfigModule.register({
       isGlobal: true,
-      providers: [AppConfig],
       loaders: [yamlConfigLoader("my-yaml-config.yaml")],
     }),
   ],
@@ -252,7 +245,6 @@ import { AppConfig } from "./app.config";
     ConfigModule.register({
       isGlobal: true,
       suppressWarnings: true,
-      providers: [AppConfig],
     }),
   ],
 })
@@ -351,9 +343,7 @@ import { BadRequestException } from "@nestjs/common";
 
 export default (async function loadConfig() {
   // Load MysqlConfig
-  await ConfigModule.preload({
-    providers: [MysqlConfig],
-  });
+  await ConfigModule.preload();
 
   // Get MysqlConfig Instance
   const config = await ConfigModule.get(MysqlConfig);
