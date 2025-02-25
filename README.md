@@ -29,7 +29,7 @@ pnpm install @buka/nestjs-config
 
 ## Usage
 
-`@buka/nestjs-config` load config from `process.env` and `.env` in `process.cwd()` by defaulted. let us create `.env` first:
+`@buka/nestjs-config` load config from `process.env` and `.env`(local `process.cwd()`) by defaulted. let us create `.env` first:
 
 ```bash
 # .env
@@ -37,8 +37,7 @@ CACHE_DIR="./tmp"
 BROKERS="test01.test.com,test02.test.com,test03.test.com"
 ```
 
-Then, define a `AppConfig` class with the `@Configuration()` decorator. And add decorators
-of `class-validator` to properties:
+Then, define a `AppConfig` class with the `@Configuration()` decorator.
 
 ```typescript
 // app.config.ts
@@ -66,6 +65,8 @@ export class AppConfig {
 }
 ```
 
+> [!TIP]
+>
 > `@buka/nestjs-config` automatically convert naming styles. For example: `cache_dir`、`CACHE_DIR`、`cacheDir`、`CacheDir`、`cache-dir`、`Cache_Dir` are considered to be the same config name.
 
 Import `ConfigModule` in your `AppModule`:
@@ -263,45 +264,72 @@ export class AppModule {}
 Simplify the writing of `.forRootAsync`/`.registerAsync`.
 
 ```typescript
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@buka/nestjs-config";
-import { KafkaModule, KafkaModuleOptions } from "@buka/nestjs-kafka";
-import { AppConfig } from "./app.config";
-import { KafkaConfig } from "./kafka.config";
+// pino.config.ts
+@Configuration("pino")
+export class PinoConfig implements Pick<Params, "assignResponse"> {
+  @ToBoolean()
+  @IsBoolean()
+  assignResponse?: boolean | undefined;
+}
 
+// app.module.ts
 @Module({
   imports: [
-    ConfigModule.register({
-      isGlobal: true,
-      providers: [AppConfig, KafkaConfig],
-    }),
+    ConfigModule.register({ isGlobal: true }),
+    ConfigModule.inject(PinoConfig, LoggerModule),
+  ],
+})
+class AppModule {}
+```
 
-    ConfigModule.inject(KafkaConfig, KafkaModule, { name: "my-kafka" }),
-    // this is equal to
-    KafkaModule.forRootAsync({
-      name: "my-kafka",
-      inject: [KafkaConfig],
-      useFactory: (config: KafkaModuleOptions) => config,
-    }),
+If the config class implement options of module `.forRootAsync`/`.registerAsync`,
+The code will become very beautiful.
 
-    // Mapping KafkaConfig to options of KafkaModule manually
+And `implement` is not necessary:
+
+```typescript
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@buka/nestjs-config";
+
+// pino.config.ts
+@Configuration("pino")
+export class PinoConfig {
+  @IsIn(["fatal", "error", "warn", "info", "debug", "trace"])
+  level: string = "info";
+}
+
+// app.module.ts
+@Module({
+  imports: [
+    ConfigModule.register({ isGlobal: true }),
+    // map .level to .pinoHttp.level
+    ConfigModule.inject(PinoConfig, LoggerModule, (config) => ({
+      pinoHttp: { level: config.level },
+    })),
+  ],
+})
+class AppModule {}
+```
+
+Sometimes, a `name` property is need by options of `.forRootAsync`/`.registerAsync`,
+like [add multiple database in `@nestjs/typeorm`](https://docs.nestjs.com/techniques/database#multiple-databases).
+
+```typescript
+@Module({
+  imports: [
     ConfigModule.inject(
-      KafkaConfig,
-      KafkaModule,
-      // override asyncOptions of KafkaModule
-      { name: "my-kafka" },
-      // override options of KafkaModule
-      (config: KafkaConfig) => ({
-        ...config,
-        groupId: `prefix_${config.groupId}`,
-      })
+      TypeOrmConfig,
+      TypeOrmModule,
+      { name: "my-orm" },
+      (config) => config // config mapping function is optional
     ),
 
-    // if you don't need override asyncOptions
-    ConfigModule.inject(KafkaConfig, KafkaModule, (config: KafkaConfig) => ({
-      ...config,
-      groupId: `prefix_${config.groupId}`,
-    })),
+    // this is equal to
+    TypeOrmModule.forRootAsync({
+      name: "my-orm",
+      inject: [TypeOrmConfig],
+      useFactory: (config: TypeOrmConfig) => config,
+    }),
   ],
 })
 export class AppModule {}
