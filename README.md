@@ -306,6 +306,8 @@ class AppModule {}
 Sometimes, a `name` property is need by options of `.forRootAsync`/`.registerAsync`,
 like [add multiple database in `@nestjs/typeorm`](https://docs.nestjs.com/techniques/database#multiple-databases).
 
+> Another one is `isGlobal`
+
 ```typescript
 @Module({
   imports: [
