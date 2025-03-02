@@ -137,6 +137,14 @@ export class ConfigModule extends ConfigurableModuleClass {
     return this.providers.get(ConfigProviderClass)
   }
 
+  static async getOrFail<T extends ConfigProvider>(ConfigProviderClass: T): Promise<InstanceType<T>> {
+    const config = await this.get(ConfigProviderClass)
+    if (!config) {
+      throw new Error(`[@buka/nestjs-config] ${ConfigProviderClass.name} Not Founded`)
+    }
+    return config
+  }
+
   static register(options: typeof OPTIONS_TYPE): DynamicModule {
     const configProviders = ConfigurationRegistry.getProviders()
     const dynamicModule = super.register(options)

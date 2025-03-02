@@ -351,6 +351,10 @@ export default (async function loadConfig() {
 
   // Get MysqlConfig Instance
   const config = await ConfigModule.get(MysqlConfig);
+  if (!config) throw new Error("Config Not Founded");
+
+  // or
+  // const config = await ConfigModule.getOrFail(MysqlConfig);
 
   return defineConfig({
     ...config,
