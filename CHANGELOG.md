@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/buka-inc/npm.nestjs-config/compare/v2.2.0...v2.3.0) (2025-03-03)
+
+
+### Features
+
+* add dotenvx loader ([0826487](https://github.com/buka-inc/npm.nestjs-config/commit/08264878bd85d5895b39f38cacc73b7d7ff3a786))
+* add tomlFileLoader ([d6482b6](https://github.com/buka-inc/npm.nestjs-config/commit/d6482b6a2eb435d2fbdc5fded1164a39a498e787))
+* add yamlFileLoader ([89cb019](https://github.com/buka-inc/npm.nestjs-config/commit/89cb0199406e366458bede5e87c2abffad47efac))
+
 ## [2.2.0](https://github.com/buka-inc/npm.nestjs-config/compare/v2.1.9...v2.2.0) (2025-03-02)
 
 
