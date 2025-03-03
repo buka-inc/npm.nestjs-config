@@ -12,5 +12,6 @@ export { jsonFileLoader } from './config-loader/json-file-loader.js'
 export { processEnvLoader } from './config-loader/process-env-loader.js'
 export { dotenvxLoader } from './config-loader/dotenvx-loader.js'
 export { yamlFileLoader } from './config-loader/yaml-file-loader.js'
+export { tomlFileLoader } from './config-loader/toml-file-loader.js'
 
 export type { ConfigLoader } from './types/config-loader.interface.js'

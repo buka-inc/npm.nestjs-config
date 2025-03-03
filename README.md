@@ -377,6 +377,7 @@ export default (async function loadConfig() {
 | `dotenvxLoader`    | load `.env` file by [`@dotenvx/dotenvx`](https://www.npmjs.com/package/@dotenvx/dotenvx) |
 | `jsonFileLoader`   | load json file by `JSON.parse`                                                           |
 | `yamlFileLoader`   | load yaml file by [`yaml`](https://www.npmjs.com/package/yaml)                           |
+| `tomlFileLoader`   | load toml file by [`smol-toml`](https://www.npmjs.com/package/smol-toml)                 |
 
 ## Q&A
 
