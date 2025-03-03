@@ -10,4 +10,6 @@ export { composeLoader } from './utils/compose-loader.js'
 export { dotenvLoader } from './config-loader/dotenv-loader.js'
 export { jsonFileLoader } from './config-loader/json-file-loader.js'
 export { processEnvLoader } from './config-loader/process-env-loader.js'
+export { dotenvxLoader } from './config-loader/dotenvx-loader.js'
+
 export type { ConfigLoader } from './types/config-loader.interface.js'

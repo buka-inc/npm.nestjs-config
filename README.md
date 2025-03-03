@@ -368,6 +368,15 @@ export default (async function loadConfig() {
 >
 > The `options` of `ConfigModule.preload(options)` is the `options` of `ConfigModule.register(options)`
 
+## Loaders
+
+| **Name**           | **Description**                                                                          |
+| :----------------- | :--------------------------------------------------------------------------------------- |
+| `processEnvLoader` | load from `process.env`                                                                  |
+| `dotenvLoader`     | load `.env` file by [`dotenv`](https://www.npmjs.com/package/dotenv)                     |
+| `dotenvxLoader`    | load `.env` file by [`@dotenvx/dotenvx`](https://www.npmjs.com/package/@dotenvx/dotenvx) |
+| `jsonFileLoader`   | load json file by `JSON.parse`                                                           |
+
 ## Q&A
 
 ### Reported every field in my Config class was missing, even though they weren't.
