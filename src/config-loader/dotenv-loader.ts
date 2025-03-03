@@ -8,7 +8,14 @@ import { fsExist } from '../utils/fs-exists.js'
 
 
 interface DotenvLoaderOptions {
+  /**
+   * @default '__'
+   */
   separator?: string
+
+  /**
+   * @default true
+   */
   jsonParse?: boolean
 }
 

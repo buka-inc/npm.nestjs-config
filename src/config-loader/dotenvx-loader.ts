@@ -8,9 +8,24 @@ import { fsExist } from '../utils/fs-exists.js'
 
 
 interface DotenvLoaderOptions {
+  /**
+   * @default '__'
+   */
   separator?: string
+
+  /**
+   * @default true
+   */
   jsonParse?: boolean
+
+  /**
+   * See More: https://dotenvx.com/docs/advanced/parse-process-env
+   */
   processEnv?: Record<string, string>
+
+  /**
+   * See More: https://dotenvx.com/docs/advanced/parse-private-key
+   */
   privateKey?: string
 }
 
