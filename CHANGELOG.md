@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.1](https://github.com/buka-inc/npm.nestjs-config/compare/v2.3.0...v2.3.1) (2025-03-04)
+
+
+### Bug Fixes
+
+* add encoding parameters to toml and yaml files ([031420d](https://github.com/buka-inc/npm.nestjs-config/commit/031420dd18f25bd8c23977480a440210e01997cb))
+
+
+### Performance Improvements
+
+* add log context ([6a56efe](https://github.com/buka-inc/npm.nestjs-config/commit/6a56efef442f0d3cc5d8b20d925412e91ca3d0a5))
+
 ## [2.3.0](https://github.com/buka-inc/npm.nestjs-config/compare/v2.2.0...v2.3.0) (2025-03-03)
 
 
