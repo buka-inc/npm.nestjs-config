@@ -9,7 +9,7 @@ export function jsonFileLoader(filepath: string, encoding: BufferEncoding = 'utf
   return async (options: ConfigModuleOptions) => {
     if (!await fsExist(filepath)) {
       if (!options.suppressWarnings) {
-        Logger.warn(`env file not found: ${filepath}`)
+        Logger.warn(`env file not found: ${filepath}`, '@buka/nestjs-config')
       }
       return {}
     }

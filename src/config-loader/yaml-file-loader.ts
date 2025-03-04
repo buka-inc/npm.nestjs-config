@@ -10,7 +10,7 @@ export function yamlFileLoader(filepath: string): ConfigLoader {
   return async (options: ConfigModuleOptions) => {
     if (!await fsExist(filepath)) {
       if (!options.suppressWarnings) {
-        Logger.warn(`yaml file not found: ${filepath}`)
+        Logger.warn(`yaml file not found: ${filepath}`, '@buka/nestjs-config')
       }
       return {}
     }

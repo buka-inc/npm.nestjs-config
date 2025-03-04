@@ -75,7 +75,7 @@ export class ConfigModule extends ConfigurableModuleClass {
         })
         .join('\n')
 
-      Logger.error(message)
+      Logger.error(message, '@buka/nestjs-config')
       throw new Error(message)
     }
 
