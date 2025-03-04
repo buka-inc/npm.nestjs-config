@@ -23,7 +23,6 @@ test('jsonFileLoader', async () => {
   await fs.writeFile(filepath, toml)
 
   const testConfig = await tomlFileLoader(filepath)({ suppressWarnings: true, providers: [] })
-  console.log('🚀 ~ test ~ testConfig:', testConfig)
   expect(testConfig.title).toBe('TOML Title')
   expect(testConfig.owner.name).toBe('TOML Owner Name')
 

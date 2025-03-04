@@ -1,5 +1,6 @@
 import * as R from 'ramda'
 import { ConfigLoader } from '../types/config-loader.interface.js'
+import { parseValue } from '~/utils/parse-value.js'
 
 
 interface ProcessEnvLoaderOptions {
@@ -14,23 +15,14 @@ interface ProcessEnvLoaderOptions {
   jsonParse?: boolean
 }
 
-export function processEnvLoader(options: ProcessEnvLoaderOptions = {}): ConfigLoader {
-  const separator = options.separator || '__'
-  const jsonParse = options.jsonParse || true
+export function processEnvLoader(loaderOptions: ProcessEnvLoaderOptions = {}): ConfigLoader {
+  const separator = loaderOptions.separator || '__'
 
   return () => {
     let config = {}
 
     for (const key of Object.keys(process.env)) {
-      let value = process.env[key]
-      if (jsonParse && typeof value === 'string') {
-        try {
-          value = JSON.parse(value)
-        } catch (e) {
-        // ignore
-        }
-      }
-
+      const value = parseValue(process.env[key], loaderOptions.jsonParse)
       config = R.assocPath(key.split(separator), value, config)
     }
 

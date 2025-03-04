@@ -5,6 +5,7 @@ import * as R from 'ramda'
 import { ConfigLoader } from '../types/config-loader.interface.js'
 import { ConfigModuleOptions } from '../types/config-module-options.interface.js'
 import { fsExist } from '../utils/fs-exists.js'
+import { parseValue } from '~/utils/parse-value.js'
 
 
 interface DotenvLoaderOptions {
@@ -29,11 +30,10 @@ interface DotenvLoaderOptions {
   privateKey?: string
 }
 
-export function dotenvxLoader(filepath: string, options: DotenvLoaderOptions = {}): ConfigLoader {
-  const separator = options.separator || '__'
-  const jsonParse = options.jsonParse || true
-  const processEnv = options.processEnv
-  const privateKey = options.privateKey
+export function dotenvxLoader(filepath: string, loaderOptions: DotenvLoaderOptions = {}): ConfigLoader {
+  const separator = loaderOptions.separator || '__'
+  const processEnv = loaderOptions.processEnv
+  const privateKey = loaderOptions.privateKey
 
 
   return async (options: ConfigModuleOptions) => {
@@ -50,14 +50,7 @@ export function dotenvxLoader(filepath: string, options: DotenvLoaderOptions = {
     let result = {}
 
     for (const key of Object.keys(config)) {
-      let value = config[key]
-      if (jsonParse && typeof value === 'string') {
-        try {
-          value = JSON.parse(value)
-        } catch (e) {
-        // ignore
-        }
-      }
+      const value = parseValue(config[key], loaderOptions.jsonParse)
       result = R.assocPath(key.split(separator), value, result)
     }
 
