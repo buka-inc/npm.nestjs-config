@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.2](https://github.com/buka-inc/npm.nestjs-config/compare/v2.3.1...v2.3.2) (2025-05-08)
+
+
+### Bug Fixes
+
+* wrong logger message ([e13c8a8](https://github.com/buka-inc/npm.nestjs-config/commit/e13c8a8a9f7c05451c305836f22b156331f7344d))
+
 ## [2.3.1](https://github.com/buka-inc/npm.nestjs-config/compare/v2.3.0...v2.3.1) (2025-03-04)
 
 
