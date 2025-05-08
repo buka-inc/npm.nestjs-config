@@ -9,7 +9,7 @@ export function tomlFileLoader(filepath: string, encoding: BufferEncoding = 'utf
   return async (options: ConfigModuleOptions) => {
     if (!await fsExist(filepath)) {
       if (!options.suppressWarnings) {
-        Logger.warn(`env file not found: ${filepath}`, '@buka/nestjs-config')
+        Logger.warn(`toml file not found: ${filepath}`, '@buka/nestjs-config')
       }
       return {}
     }

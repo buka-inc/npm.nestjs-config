@@ -26,7 +26,7 @@ export function dotenvLoader(filepath: string, loaderOptions: DotenvLoaderOption
   return async (moduleOptions: ConfigModuleOptions) => {
     if (!await fsExist(filepath)) {
       if (!moduleOptions.suppressWarnings) {
-        Logger.warn(`env file not found: ${filepath}`, '@buka/nestjs-config')
+        Logger.warn(`env file not found: ${filepath}`, '@buka/nestjs-config/dtoenvLoader')
       }
       return {}
     }

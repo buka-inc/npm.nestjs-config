@@ -10,7 +10,7 @@ export function yamlFileLoader(filepath: string, encoding: BufferEncoding = 'utf
   return async (options: ConfigModuleOptions) => {
     if (!await fsExist(filepath)) {
       if (!options.suppressWarnings) {
-        Logger.warn(`yaml file not found: ${filepath}`, '@buka/nestjs-config')
+        Logger.warn(`yaml file not found: ${filepath}`, '@buka/nestjs-config/yamlFileLoader')
       }
       return {}
     }
