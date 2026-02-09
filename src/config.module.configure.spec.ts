@@ -73,7 +73,7 @@ test('ConfigModule.configure() - options override global config', async () => {
 
   // Preload with override options
   await ConfigModule.preload({
-    debug: true, // This should be added to global options
+    debug: true,
   })
 
   const config = await ConfigModule.getOrFail(SharedConfig)

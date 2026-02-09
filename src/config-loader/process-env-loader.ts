@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { ConfigLoader } from '../types/config-loader.interface.js'
+import { LoadRawConfigFn } from '../types/config-loader.js'
 import { parseValue } from '~/utils/parse-value.js'
 
 
@@ -15,7 +15,7 @@ interface ProcessEnvLoaderOptions {
   jsonParse?: boolean
 }
 
-export function processEnvLoader(loaderOptions: ProcessEnvLoaderOptions = {}): ConfigLoader {
+export function processEnvLoader(loaderOptions: ProcessEnvLoaderOptions = {}): LoadRawConfigFn {
   const separator = loaderOptions.separator || '__'
 
   return () => {

@@ -15,6 +15,7 @@ An easy-to-use NestJS config module with powerful features and type safety.
 - ✅ **Type-Safe Configuration**: Config verification by `class-validator`
 - ✅ **Config Transformation**: Config transform by `class-transformer`
 - ✅ **Flexible Loading**: Load configuration from multiple sources (env, files, etc.)
+- ✅ **Hot Reload**: Automatically reload configuration when files change (opt-in)
 - ✅ **Auto Naming Convention**: Automatically handles naming styles (camelCase, snake_case, etc.)
 - ✅ **Injectable Classes**: Configuration classes can be injected like any other provider
 - ✅ **Global Configuration**: Define configuration once, use everywhere
@@ -326,6 +327,112 @@ class LoggerConfig {
 })
 class AppModule {}
 ```
+
+### Configuration Hot Reload
+
+The module supports hot-reloading of configuration files, allowing your application to automatically pick up configuration changes without restarting.
+
+#### Basic Usage
+
+Enable hot reload per loader using the `hotReload` option:
+
+```typescript
+import { ConfigModule, dotenvLoader, jsonFileLoader, yamlFileLoader } from "@buka/nestjs-config";
+
+@Module({
+  imports: [
+    ConfigModule.register({
+      isGlobal: true,
+      loaders: [
+        // Enable hot reload with default settings (file watcher)
+        dotenvLoader(".env", { hotReload: true }),
+
+        // Enable hot reload for JSON file
+        jsonFileLoader("./config.json", 'utf-8', { hotReload: true }),
+
+        // Enable hot reload for YAML file
+        yamlFileLoader("./config.yaml", 'utf-8', { hotReload: true }),
+      ],
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+#### Advanced Usage - Watch Types and Hooks
+
+You can customize the watch behavior for each loader:
+
+```typescript
+ConfigModule.register({
+  loaders: [
+    // File system watch (default, recommended)
+    dotenvLoader(".env", {
+      hotReload: {
+        type: 'watch',        // Use chokidar file system watcher
+        debounceMs: 500,      // Wait 500ms before reloading (default: 300ms)
+
+        onChange: async (newConfig) => {
+          console.log("Config file changed, new config:", newConfig);
+        },
+
+        onError: async (error) => {
+          console.error("Failed to reload config:", error);
+        },
+      },
+    }),
+
+    // Polling mode (for network drives or special filesystems)
+    jsonFileLoader("./config.json", 'utf-8', {
+      hotReload: {
+        type: 'interval',     // Use polling instead of file watching
+        intervalMs: 5000,     // Check every 5 seconds (default: 5000ms)
+        debounceMs: 300,
+      },
+    }),
+  ],
+});
+```
+
+#### Manual Reload
+
+You can also manually trigger configuration reload:
+
+```typescript
+import { ConfigModule } from "@buka/nestjs-config";
+
+// In your service or controller
+async reloadConfig() {
+  try {
+    await ConfigModule.reload();
+    return { message: "Configuration reloaded successfully" };
+  } catch (error) {
+    throw new Error(`Failed to reload config: ${error.message}`);
+  }
+}
+```
+
+This is useful when:
+- Configuration is updated programmatically (not via file changes)
+- You need to reload configuration on demand (e.g., admin endpoint)
+- Testing configuration changes
+
+#### How It Works
+
+- Each loader can independently enable hot reload with its own settings
+- When a file changes, the loader triggers a global configuration reload
+- All configuration provider instances are updated in-place
+- Injected configuration objects automatically reflect the new values
+- If validation fails, the old configuration is preserved (rollback)
+
+#### Notes
+
+- Hot reload is configured per loader (opt-in for each file)
+- Supports both `watch` mode (file system events) and `interval` mode (polling)
+- Environment variable loader (`processEnvLoader`) does not support watching
+- Each loader has independent debouncing (default: 300ms)
+- Configuration validation still applies on reload
+- Manual reload via `ConfigModule.reload()` is also available
 
 **Equivalent without `ConfigModule.inject()`:**
 

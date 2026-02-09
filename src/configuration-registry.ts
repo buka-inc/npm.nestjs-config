@@ -1,52 +1,45 @@
-import { IConfigKey } from './types/config-key'
-import { IConfigProvider } from './types/config-provider'
+import { ConfigurationCtor, ConfigurationDefinition, ConfigurationProperty } from './types/configuration-defintion'
+import { toCamelCase } from './utils/to-camel-case'
 
-export const CONFIG_KEY_METADATA = Symbol('@buka/nestjs-config:config-key')
 export const CONFIG_KEY_PROPERTIES_METADATA = Symbol('@buka/nestjs-config:config-key:properties')
 
 
-export class ConfigurationRegistry {
-  private static readonly registry: Array<IConfigProvider> = []
+export class ConfigurationDefinitionRegistry {
+  private static readonly definitionStore = new Set<ConfigurationDefinition>()
+  private static readonly propertyStore = new WeakMap<ConfigurationCtor, ConfigurationProperty[]>()
 
-  static registerProvider(provider: IConfigProvider): void {
-    this.registry.push(provider)
+  static register(provider: ConfigurationDefinition): void {
+    this.definitionStore.add({ ...provider, scope: provider.scope && toCamelCase(provider.scope) })
   }
 
-  static registerProperty(target: object, ck: IConfigKey): void {
+  static getAll(): Array<ConfigurationDefinition> {
+    return [...this.definitionStore]
+  }
+
+
+  static registerProperty(target: ConfigurationCtor, property: ConfigurationProperty): void {
     if (typeof target !== 'object' || target === null) return
 
-    if (!Array.isArray(target[CONFIG_KEY_PROPERTIES_METADATA])) {
-      target[CONFIG_KEY_PROPERTIES_METADATA] = []
-    }
-
-    target[CONFIG_KEY_PROPERTIES_METADATA].push(ck.propertyKey)
-    Reflect.defineMetadata(CONFIG_KEY_METADATA, ck, target, ck.propertyKey)
+    this.propertyStore.set(target, [...(this.propertyStore.get(target) || []), property])
   }
 
-  static getProviders(): Array<IConfigProvider> {
-    return [...this.registry]
+  static getProperties(target: ConfigurationCtor): ConfigurationProperty[] {
+    return this.propertyStore.get(target) || []
   }
 
-  static getProperties(target: object): Array<string | symbol> {
-    if (typeof target !== 'object' || target === null) return []
-    return target[CONFIG_KEY_PROPERTIES_METADATA] || []
-  }
+  static getProperty(target: ConfigurationCtor, propertyKey: string | symbol): ConfigurationProperty {
+    const properties = this.propertyStore.get(target)
 
-  static getConfigKey(target: object, propertyKey: string | symbol): IConfigKey {
-    const metadata = Reflect.getMetadata(CONFIG_KEY_METADATA, target, propertyKey)
-    if (metadata) return metadata as IConfigKey
+    const property = properties?.find((prop) => prop.propertyKey === propertyKey)
+    if (property) return property
 
     if (typeof propertyKey === 'symbol') {
-      return {
-        ignore: true,
-        propertyKey: propertyKey.toString(),
-      }
+      return { exclude: true, propertyKey }
     }
 
     return {
-      ignore: false,
+      exclude: false,
       propertyKey: propertyKey.toString(),
-      configKey: undefined,
     }
   }
 }

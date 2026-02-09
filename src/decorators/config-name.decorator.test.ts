@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
 import { ConfigName } from './config-name.decorator.js'
-import { ConfigurationRegistry } from '~/configuration-registry.js'
+import { ConfigurationDefinitionRegistry } from '~/configuration-registry.js'
 import { IConfigExistedKey } from '~/types/config-key.js'
 
 class TestClass {
@@ -11,7 +11,7 @@ class TestClass {
 test('ConfigName', () => {
   const t = new TestClass()
 
-  const ck = ConfigurationRegistry.getConfigKey(t, 'url')
+  const ck = ConfigurationDefinitionRegistry.getConfigKey(t, 'url')
   expect(ck.ignore).toBe(false)
   expect((ck as IConfigExistedKey).configKey).toBe('test_class_url')
 })

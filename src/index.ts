@@ -1,5 +1,6 @@
 export { ConfigModule } from './config.module.js'
-export type { ConfigModuleOptions } from './types/config-module-options.interface.js'
+export type { ConfigModuleOptions } from './types/config-module-options.js'
+export { RuntimeConfig as ConfigOption } from './runtime-config.js'
 
 export { ConfigKey } from './decorators/config-key.decorator.js'
 export { ConfigName } from './decorators/config-name.decorator.js'
@@ -14,4 +15,6 @@ export { dotenvxLoader } from './config-loader/dotenvx-loader.js'
 export { yamlFileLoader } from './config-loader/yaml-file-loader.js'
 export { tomlFileLoader } from './config-loader/toml-file-loader.js'
 
-export type { ConfigLoader } from './types/config-loader.interface.js'
+export type { LoadRawConfigFn as ConfigLoader } from './types/config-loader.js'
+export type { WatchableConfigLoader, WatcherDisposer, ConfigLoader as EnhancedConfigLoader } from './types/config-loader.js'
+export type { LoaderWatchOptions, HotReloadConfig } from './types/loader-watch-options.js'
