@@ -24,6 +24,7 @@ import { IConfigProvider } from './types/config-provider.js'
 export class ConfigModule extends ConfigurableModuleClass {
   private static config: object | null = null
   private static providers = new Map()
+  private static globalOptions: ConfigModuleOptions | null = null
 
   private static async createConfigProvider(options: typeof OPTIONS_TYPE, config: Record<string, any>, configProvider: IConfigProvider): Promise<ConfigProvider> {
     const ConfigProviderClass = configProvider.target
@@ -88,13 +89,27 @@ export class ConfigModule extends ConfigurableModuleClass {
     return result
   }
 
+  private static mergeOptions(options: ConfigModuleOptions = {}): ConfigModuleOptions {
+    if (!this.globalOptions) return options
+
+    return {
+      ...this.globalOptions,
+      ...options,
+      loaders: options.loaders ?? this.globalOptions.loaders,
+      providers: options.providers ?? this.globalOptions.providers,
+      suppressWarnings: options.suppressWarnings ?? this.globalOptions.suppressWarnings,
+      debug: options.debug ?? this.globalOptions.debug,
+    }
+  }
+
   private static async loadConfig(options: typeof OPTIONS_TYPE = {}): Promise<object> {
     if (this.config !== null) return this.config
 
-    const configLoaders = (options.loaders || [processEnvLoader(), '.env'])
+    const mergedOptions = this.mergeOptions(options)
+    const configLoaders = (mergedOptions.loaders || [processEnvLoader(), '.env'])
       .map((c) => (typeof c === 'string' ? dotenvLoader(c) : c))
 
-    const configs = await Promise.all(configLoaders.map((loader) => loader(options)))
+    const configs = await Promise.all(configLoaders.map((loader) => loader(mergedOptions)))
     const config = objectKeysToCamelCase(deepMergeAll(configs))
     this.config = config
     return config
@@ -122,12 +137,22 @@ export class ConfigModule extends ConfigurableModuleClass {
   }
 
   /**
+   * Configure global options for ConfigModule
+   * These options will be used as defaults for preload() and register()
+   */
+  static configure(options: ConfigModuleOptions): void {
+    this.globalOptions = options
+  }
+
+  /**
    * Load config and provider before registering the module
+   * If no options provided, will use global options set by configure()
    */
   static async preload(options: ConfigModuleOptions = {}): Promise<void> {
-    const config = await this.loadConfig(options)
+    const mergedOptions = this.mergeOptions(options)
+    const config = await this.loadConfig(mergedOptions)
     const configProviders: IConfigProvider[] = ConfigurationRegistry.getProviders()
-    await Promise.all(configProviders.map((provider) => this.createConfigProvider(options, config, provider)))
+    await Promise.all(configProviders.map((provider) => this.createConfigProvider(mergedOptions, config, provider)))
   }
 
   /**
@@ -145,9 +170,10 @@ export class ConfigModule extends ConfigurableModuleClass {
     return config
   }
 
-  static register(options: typeof OPTIONS_TYPE): DynamicModule {
+  static register(options: typeof OPTIONS_TYPE = {}): DynamicModule {
+    const mergedOptions = this.mergeOptions(options)
     const configProviders = ConfigurationRegistry.getProviders()
-    const dynamicModule = super.register(options)
+    const dynamicModule = super.register(mergedOptions)
 
     dynamicModule.providers = [
       ...(dynamicModule.providers || []),
@@ -163,9 +189,10 @@ export class ConfigModule extends ConfigurableModuleClass {
     return dynamicModule
   }
 
-  static registerAsync(options: typeof ASYNC_OPTIONS_TYPE): DynamicModule {
+  static registerAsync(options: typeof ASYNC_OPTIONS_TYPE = {}): DynamicModule {
+    const mergedOptions = this.mergeOptions(options as ConfigModuleOptions)
     const configProviders = ConfigurationRegistry.getProviders()
-    const dynamicModule = super.registerAsync(options)
+    const dynamicModule = super.registerAsync({ ...options, ...mergedOptions } as typeof ASYNC_OPTIONS_TYPE)
 
     dynamicModule.providers = [
       ...(dynamicModule.providers || []),
