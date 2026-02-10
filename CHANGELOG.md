@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/buka-inc/npm.nestjs-config/compare/v2.3.2...v2.4.0) (2026-02-10)
+
+
+### Features
+
+* support hot reload ([507bb1c](https://github.com/buka-inc/npm.nestjs-config/commit/507bb1c0f55c31546c0143d6dfe73a80e1c2f228))
+
+
+### Performance Improvements
+
+* add ConfigModule.configure method to avoid duplication ([3e5e625](https://github.com/buka-inc/npm.nestjs-config/commit/3e5e6251e52ef9ff408a02da133d9f9596a8d13a))
+
 ## [2.3.2](https://github.com/buka-inc/npm.nestjs-config/compare/v2.3.1...v2.3.2) (2025-05-08)
 
 
